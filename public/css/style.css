@@ -1,0 +1,73 @@
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
+}
+.red {
+    color: rgb(189, 6, 6);
+}
+.p5 {
+    padding: 2px 5px !important;
+}
+.amoutbox span{
+    border-radius: 3px;
+    margin-right: 5px;
+    margin-bottom: 5px;
+    color: #155724;
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+    white-space: inherit;
+    font-size: 14px;
+    display: inline-block;
+}
+.amoutbox span:hover{
+    background-color: #c0e7c9;
+    cursor: pointer;
+}
+.btn-square {
+    height: 60px;
+    padding: 0px 20px;
+}
+
+.btn-square1 {
+    height: 60px;
+    padding: 0px 20px;
+    font-size: 13px;
+}
+
+
+.center {
+    text-align: center;
+}
+
+.w-auto {
+    width: auto !important;
+}
+
+.inline-block {
+    display: inline-block;
+}
+.tb-scroll {
+    height: calc(100vh - 58px);
+    overflow-y: scroll;
+}
+.txt {
+    padding: 5px;
+    font-size: 18px;
+    color: #a5a5a5;
+}
+.c1 {
+    color: red;
+}
+.w0{
+    width: 0px;
+}
+.btnDelRow:hover,
+.btnDelSheet:hover{
+    cursor: pointer;
+}

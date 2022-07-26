@@ -1,0 +1,35 @@
+div.d-flex.justify-content-between.mb-1
+    .text-success Tổng khách: #{sheetData.length}
+    button.btndelSheet.ml-auto(type="button" class="btn btn-danger btn-sm" data-sheetid=sheetId) Xoá tất cả
+    button.btn-print.btn.btn-info.btn-sm.ml-2 In
+div#list-detail
+    table.table.table-success.table-bordered.table-sm
+        thead 
+            tr 
+                th.w0 STT
+                th.center(colspan=2) Tên
+                th Tiền
+                th
+            tr 
+                th(colspan=3) Tổng tiền
+                th.red 
+                    b=(new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(totalAmount))
+                    
+        tbody 
+            -
+                var size = sheetData.length
+            each item in sheetData
+                tr 
+                    td=item[0] 
+                    td=item[1] 
+                    td
+                        b=item[2]
+                    td=(item[3] ? new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(item[3]): '')
+                    td.w0
+                        span.btnDelRow(data-index=item[4] data-sheetid=sheetId)
+                            i.bi.bi-x-circle.c1
+script.
+    var sheetname = '!{sheetname}';
+    $('.btn-print').click(function() {
+        PrintElem('list-detail', sheetname);
+    });

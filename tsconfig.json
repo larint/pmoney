@@ -1,0 +1,14 @@
+{
+    "compilerOptions": {
+        "target": "es2017",
+        "module": "commonjs",
+        "noImplicitAny": true,
+        "removeComments": true,
+        "preserveConstEnums": true,
+        "sourceMap": false,
+        "strict": true,
+        "resolveJsonModule": true,
+        "esModuleInterop": true,
+        "strictNullChecks": true
+    }
+}

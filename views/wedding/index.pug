@@ -1,0 +1,71 @@
+extends ../layout
+block style 
+    style.
+        .tb-scroll {
+            height: calc(100vh - 58px);
+            overflow-y: scroll;
+        }
+block content
+    .mt-3
+        a.text-decoration-none(href="/")
+            i.bi.bi-arrow-90deg-left
+            span Quay lại
+    .row.mt-3
+        .col-md-6.mb-3
+            button.btnNewSheet(type="button" class="btn btn-info btn-square1 mt-3") Tạo mới tiệc
+        .col-md-6
+            div.tb-scroll
+    script.
+        function loadSheetList() {
+            $.ajax({
+                type: 'POST',
+                url: '/api/getSheets',
+                data: {},
+                beforeSend: function () {
+                    $('.tb-scroll').html('Đang tải danh sách...')
+                },
+                success: function (res) {
+                    if (res.authUrl) {
+                        vex.dialog.confirm({
+                            message: 'Xác thực quyền truy cập tài liệu?',
+                            callback: function (value) {
+                                if(value){
+                                    window.location.href = res.authUrl;
+                                }
+                            }
+                        })
+                    }
+                    $('.tb-scroll').html(res.data)
+                },
+                complete: function () {
+                   
+                }
+            })
+        }
+        
+        loadSheetList();
+
+        $('.btnNewSheet').click(function() {
+            vex.dialog.prompt({
+                message: 'Nhập tên bữa tiệc?',
+                placeholder: '',
+                callback: function (value) {
+                    if (value) {
+                        newSheet(value, loadSheetList);
+                    }
+                }
+            })
+        })
+
+        $(document).on('click','.btnDelSheet', function() {
+            var sheetId = $(this).data('sheetid');
+            vex.dialog.confirm({
+                overlayClosesOnClick: false,
+                message: 'Xoá dữ liệu?',
+                callback: function (value) {
+                    if (value) {
+                        delSheet(sheetId,'',loadSheetList);
+                    }
+                }
+            })
+        })

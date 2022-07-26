@@ -1,0 +1,14 @@
+table.table.table-success.table-bordered
+    thead 
+        tr 
+            th STT
+            th.center(colspan="2") Tên 
+    tbody 
+        each item, i in sheetList
+            tr 
+                td=i+1
+                td
+                    a(href="/wedding/new/"+item.sheetId+'/'+item.title )=item.title 
+                td.w0
+                    span.btnDelSheet(data-sheetid=item.sheetId)
+                        i.bi.bi-x-circle.c1

@@ -1,0 +1,175 @@
+extends ../layout
+
+block content
+    -
+        var prefNames = ['Gia đình', 'Anh chị', 'Em', 'Anh', 'Chị', 'Bạn', 'Ông', 'Bà', 'Chú', 'Bác', 'Cô', 'Cậu', 'Mợ', 'Cháu', 'Dượng', 'Dì', 'Thím']
+    .mt-3
+        a.text-decoration-none(href="/wedding")
+            i.bi.bi-arrow-90deg-left
+            span Quay lại
+    .row.mt-3
+        .col-md-6
+            form.form-new(action="/wedding/new", method="post") 
+                input.form-control(type="hidden" name="id" value="1")
+                input.form-control(type="hidden" name="sheetname" value=sheetname)
+                -
+                    var prefixname = session && session.form ? session.form.prefixname : ''
+                .mb-1
+                    label.form-label(for="exampleFormControlTextarea1") Nhập Tên:
+                    .d-flex 
+                        span.txt 1
+                        select.form-control.mb-2.w-auto(name="prefixname")
+                            each val, idx in prefNames
+                                option(value=val selected=(prefixname==val))=val
+                        input.form-control.ml-1(type="text" required name="name")
+                div.text-right
+                    button(type="submit" class="btn btn-primary") Lưu
+            div.mt-3.mb-3
+                form.form-update(action="#", method="post") 
+                    input.form-control(type="hidden" name="sheetname" value=sheetname)
+                    table(style="width: 100%;")
+                        tbody
+                            tr
+                                td(style="width: 60px;") STT 
+                                td 
+                                    input.mb-2.form-control.stt(style="width: 60px; display: inline-block;" type="number" onKeyPress="if(this.value.length==3) return false;" required name="stt")
+                                    span.ml-2.name-search(style="display: inline-block;font-weight: bold;") 
+                                td(style="width: 10px;")
+                            tr 
+                                td Số tiền
+                                td
+                                    input.form-control(type="number" onKeyPress="if(this.value.length==8) return false;" required name="amount")
+                                td
+                                    button.ml-2(type="submit" class="btn btn-primary" style="white-space: nowrap;") Cập nhật
+                            tr 
+                                td 
+                                td(colspan="2")
+                                    div.mt-1.amoutbox
+                                        span.p5(data-amount="100000") 100.000đ 
+                                        span.p5(data-amount="200000") 200.000đ 
+                                        span.p5(data-amount="300000") 300.000đ 
+                                        span.p5(data-amount="400000") 400.000đ 
+                                        span.p5(data-amount="500000") 500.000đ 
+                                        span.p5(data-amount="1000000") 1.000.000đ 
+                                        span.p5(data-amount="1500000") 1.500.000đ 
+                                        span.p5(data-amount="2000000") 2.000.000đ 
+                                        span.p5(data-amount="2500000") 2.500.000đ 
+                                        span.p5(data-amount="3000000") 3.000.000đ 
+        .col-md-6
+            div.tb-scroll
+
+    script.
+        var sheetname = '!{sheetname}';
+        var sheetId = '!{sheetId}';
+        var sheetData = [];
+        function loadSheetData() {
+            $.ajax({
+                type: 'POST',
+                url: '/api/getSheetDetail',
+                data: {sheetname: sheetname, sheetId: sheetId},
+                beforeSend: function () {
+                    $('.tb-scroll').html('Đang tải danh sách...')
+                },
+                success: function (res) {
+                    if (res.authUrl) {
+                        vex.dialog.confirm({
+                            message: 'Xác thực quyền truy cập tài liệu?',
+                            callback: function (value) {
+                                if(value){
+                                    window.location.href = res.authUrl;
+                                }
+                            }
+                        })
+                    }
+                    sheetData = res.sheetData;
+                    $('input[name="id"]').val(res.maxIndex+1);
+                    $('span.txt').html(res.maxIndex+1);
+                    $('.tb-scroll').html(res.data);
+                },
+                error: function () {
+                    toastr.error('Lỗi tải dữ liệu');
+                }
+            })
+        }
+
+        loadSheetData();
+
+        $(document).on('click','.btndelSheet', function() {
+            var sheetId = $(this).data('sheetid');
+            vex.dialog.confirm({
+                overlayClosesOnClick: false,
+                message: 'Xoá dữ liệu?',
+                callback: function (value) {
+                    if (value) {
+                        delSheet(sheetId, '/wedding');
+                    }
+                }
+            })
+        })
+        
+        $(document).on('click','.btnDelRow', function() {
+            var indexRow = $(this).data('index');
+            vex.dialog.confirm({
+                overlayClosesOnClick: false,
+                message: 'Xoá dòng này?',
+                callback: function (value) {
+                    if (value) {
+                        delSheetRow(sheetId, indexRow, loadSheetData);
+                    }
+                }
+            })
+        })
+
+        $('.form-new').submit(function() {
+            var queryString = $(this).serializeArray();
+            var prefixname = queryString[2].value;
+            var name = queryString[3].value;
+            var check = sheetData.filter(function(x) {
+                return x[1].toUpperCase() == prefixname.toUpperCase() && x[2].toUpperCase() == name.toUpperCase();
+            })
+            if(check.length > 0) {
+                toastr.warning('Tên đã có rồi!');
+                return false;
+            }
+            return true;
+        })
+
+        $('.form-update').submit(function() {
+            var queryString = $(this).serializeArray();
+            var sheetname = queryString[0].value;
+            var stt = queryString[1].value;
+            var amount = queryString[2].value;
+            var rowFind = sheetData.filter(function(x) {
+                return x[0] == stt;
+            });
+
+            if(rowFind.length > 0) {
+                var indexRow = rowFind[0][4];
+                updateSheetRow(sheetname, indexRow, amount, loadSheetData);
+            } else {
+                toastr.warning('Tên chưa có trong danh sách');
+            }
+            setTimeout(function() {
+                $('input[name="amount"]').val('');
+                $('input[name="stt"]').val('');
+                $('.name-search').text('');
+            }, 500);
+            return false;
+        })
+
+        $('.stt').on('input', function() {
+            var val = $(this).val();
+            var name = sheetData.filter(function(x) {
+                return x[0] == val;
+            });
+            if(name.length > 0) {
+                $('.name-search').text(name[0][1] + ' ' + name[0][2]);
+            } else {
+                $('.name-search').text('');
+            }
+        });
+
+        $('.amoutbox>span').click(function() {
+            var amount = $(this).data('amount');
+            $('input[name="amount"]').val(amount);
+        });
